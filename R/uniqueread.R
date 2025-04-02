@@ -2,15 +2,34 @@
 library("plyr")
 library("dplyr")
 
-#Read in Goodreads data
-#GR_data <- read.csv("/Users/tillytran/Desktop/goodreads_library_export.csv", header = TRUE)
-GR_data <- read.csv("/Users/tillytran/Desktop/sample_export.csv", header = TRUE)
-GR_data
 
-#Get rid of not readily useful data columns
-GR_data <- GR_data %>% select(-c(Author.l.f, Additional.Authors, Binding, ISBN, ISBN13, Year.Published,
-                                 Original.Publication.Year, Exclusive.Shelf, My.Review, Spoiler, Private.Notes,
-                                 Owned.Copies, Bookshelves, Bookshelves.with.positions, Publisher))
+#' Title: Read in and clean GoodReads data from CSV file
+#'
+#' Description: This function reads in data from user GoodReads CSV file
+#' into a data frame and removes unnecessary columns.
+#'
+#' @param file_path A character string representing the path to the CSV file.
+#' @return A data frame containing the cleaned Goodreads data.
+#' @export
+read_GR_data <- function(file_path) {
+  if (!file.exists(file_path)) {
+    stop("Error: File not found. Please check the file path.")
+  }
+  data <- read.csv(file_path, header = TRUE, stringsAsFactors = FALSE)
+  #Remove unnecessary columns
+  data <- data %>% select(-c(Author.l.f, Additional.Authors, Binding, ISBN, ISBN13, Year.Published,
+                             Original.Publication.Year, Exclusive.Shelf, My.Review, Spoiler, Private.Notes,
+                             Owned.Copies, Bookshelves, Bookshelves.with.positions, Publisher))
+  cat("Data successfully loaded from: ", file_path, "\n")
+  return(data)
+}
+
+GR_data <- read_GR_data("/Users/tillytran/Desktop/goodreads_library_export.csv")
+
+#Testing
+#GR_data <- read_GR_data("/Users/tillytran/Desktop/goodreads_library_export.csv")
+#GR_data <- read_GR_data("/Users/tillytran/Desktop/sample_export.csv")
+
 
 #Convert ratings of 0 in My.Rating to NA and remove those books
 #If a book has a rating of 0, it was not rated yet because Goodreads only allows users to give the lowest rating of 1, so these books should be removed

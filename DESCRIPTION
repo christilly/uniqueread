@@ -2,10 +2,9 @@ Package: uniqueread
 Title: Goodreads User Rating Analysis
 Version: 0.0.0.9000
 Authors@R: 
-    person(Christine, Tran, email = "ctschultz@usf.edu", role = c("aut", "cre"))
+    person("Christine", "Tran", email = "ctschultz@usf.edu", role = c("aut", "cre"))
 Description: This package analyzes book export data from Goodreads to analyze user book ratings compared to average Goodreads ratings.
-Depends: R (>= 4.4.2), dplyr, ggplot2
-License: CC0-1.0
+License: GPL-3 | file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
