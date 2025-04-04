@@ -24,7 +24,7 @@ read_GR_data <- function(file_path) {
   return(data)
 }
 
-GR_data <- read_GR_data("/Users/tillytran/Desktop/goodreads_library_export.csv")
+GR_data <- read_GR_data("/Users/tillytran/Desktop/sample_export.csv")
 
 #Testing
 #GR_data <- read_GR_data("/Users/tillytran/Desktop/goodreads_library_export.csv")
