@@ -4,7 +4,7 @@ library("dplyr")
 library("ggplot2")
 
 
-#' Title: Read in and clean GoodReads data from CSV file
+#' Title: Read in GoodReads data from CSV file
 #'
 #' Description: This function reads in data from user GoodReads CSV file
 #' into a data frame and removes unnecessary columns.
