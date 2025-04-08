@@ -1,0 +1,95 @@
+---
+title: "uniqueread"
+output: html_document
+---
+
+# Package purpose
+The goal of the uniqueread package is to analyze user Goodreads data and show how the user rates the books they read, whether they tend to rate books above or below average, which books they differed from the average the most in a positive and negative way, and a visual display of the user's rating trends. 
+
+## Required libraries
+Import the required packages. 
+```{r}
+library("dplyr")
+library("ggplot2")
+```
+
+## Import Goodreads data
+The first step is to import the Goodreads data into the program. A user's Goodreads data can be exported from an individual's account in the form of a CSV file. Please access the following [link](https://help.goodreads.com/s/article/How-do-I-import-or-export-my-books-1553870934590) to find how to do so. Edit the read_GR_data function to include the path file to your Goodreads export data. A sample document has been included on my GitHub labelled sample_export.csv.
+```{r}
+read_GR_data <- function(file_path) {
+  if (!file.exists(file_path)) {
+    stop("Error: File not found. Please check the file path.")
+  }
+  data <- read.csv(file_path, header = TRUE, stringsAsFactors = FALSE)
+  #Remove unnecessary columns
+  data <- data %>% select(-c(Author.l.f, Additional.Authors, Binding, ISBN, ISBN13, Year.Published,
+                             Original.Publication.Year, Exclusive.Shelf, My.Review, Spoiler, Private.Notes,
+                             Owned.Copies, Bookshelves, Bookshelves.with.positions, Publisher))
+  cat("Data successfully loaded from: ", file_path, "\n")
+  return(data)
+}
+GR_data <- read_GR_data("/Users/tillytran/Desktop/sample_export.csv")
+```
+ 
+## Remove unrated books
+ Once the data has been uploaded, with irrelevant columns removed, the next step is to remove any books where the rating is 0 stars from the data frame. This is because the lowest rating a reader can give in Goodreads is 1 star, meaning the books with 0 stars are books that have not been rated yet and are therefore not useful in this analysis.
+```{r}
+clean_GR_ratings <- function(data_frame) {
+  data_frame %>%
+    dplyr::mutate(My.Rating = na_if(My.Rating, 0)) %>%
+    dplyr::filter(!is.na(My.Rating))
+}
+GR_clean <- clean_GR_ratings(GR_data)
+```
+ 
+## Create residual column in data frame
+ After removing the unrated books, analysis can be done to compare the user ratings to the average Goodreads ratings of each book. Residuals are calculated by subtracting the average Goodreads rating from the user rating for each book. A new column for residual data is created in the data frame. 
+```{r}
+calculate_residuals <- function(data_frame) {
+  data_frame %>%
+    dplyr::mutate(residuals = My.Rating - Average.Rating)
+}
+GR_clean <- calculate_residuals(GR_clean)
+```
+ 
+##  Find average, standard deviation, highest, and lowest residuals
+ The residual data can be used to draw conclusions about user ratings vs average ratings. The average residual and standard deviation values can show how the user scored books compared to the average ratings and how widely spread their ratings are. The highest residual value informs which book the user rated highest compared to the average, and the lowest residual value informs which book the user rated lowest compared to the average. The associated titles for these books are found by accessing the data frame. 
+```{r}
+res_data <- function(data_frame) {
+  avg_res <- mean(data_frame$residuals, na.rm = TRUE)
+  sd_res <- sd(data_frame$residuals, na.rm = TRUE)
+  hr <- max(data_frame$residuals, na.rm = TRUE)
+  lr <- min(data_frame$residuals, na.rm = TRUE)
+
+  hr_title <- data_frame$Title[which(data_frame$residuals == hr)][1]
+  lr_title <- data_frame$Title[which(data_frame$residuals == lr)][1]
+
+  cat("On average, your book ratings differed from average Goodreads users by",
+      round(avg_res, 4), "points with a standard deviation of", round(sd_res, 4),  "\n")
+  cat("The book you loved more than others:", hr_title,
+      "with a rating difference of", round(hr, 2), "stars\n")
+  cat("The book you hated more than others:", lr_title,
+      "with a rating difference of", round(lr, 2), "stars\n")
+}
+
+GR <- res_data(GR_clean)
+```
+
+## Display distribution of residuals visually in a histogram
+ Lastly, the residual data can be displayed visually using a distribution histogram. This can show whether a user tended to rate books above or below the average Goodreads rating. 
+```{r}
+dist_hist <- function(data_frame) {
+  ggplot(data = data_frame, aes(x = residuals)) +
+    geom_histogram(binwidth = 0.5, fill = "steelblue", color = "black") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
+    labs(
+      title = "Distribution of Rating Residuals",
+      x = "Residuals (My Rating - Average Rating)",
+      y = "Frequency"
+    ) +
+    theme_classic()
+}
+
+dist_hist(GR_clean)
+```
+ 

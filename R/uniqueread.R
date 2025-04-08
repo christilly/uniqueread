@@ -1,5 +1,4 @@
 #Required packages
-library("plyr")
 library("dplyr")
 library("ggplot2")
 
@@ -47,18 +46,18 @@ clean_GR_ratings <- function(data_frame) {
 GR_clean <- clean_GR_ratings(GR_data)
 
 
-#' Title: Calculate residuals of the average Goodreads rating - user rating
+#' Title: Calculate residuals of the user rating - average Goodreads rating
 #'
 #' Description: Calculate the residuals of average Goodreads rating - user rating.
 #'
 #' @param data_frame cleaned data frame (GR_clean).
 #' @return a data frame with residuals.
 #' @export
-resids <- function(data_frame) {
+calculate_residuals <- function(data_frame) {
   data_frame %>%
     dplyr::mutate(residuals = My.Rating - Average.Rating)
 }
-GR_clean <- resids(GR_clean)
+GR_clean <- calculate_residuals(GR_clean)
 
 
 
@@ -80,7 +79,7 @@ res_data <- function(data_frame) {
   hr_title <- data_frame$Title[which(data_frame$residuals == hr)][1]
   lr_title <- data_frame$Title[which(data_frame$residuals == lr)][1]
 
-  cat("On average, your book ratings differed from average Goodreads users by:",
+  cat("On average, your book ratings differed from average Goodreads users by",
       round(avg_res, 4), "points with a standard deviation of", round(sd_res, 4),  "\n")
   cat("The book you loved more than others:", hr_title,
       "with a rating difference of", round(hr, 2), "stars\n")
@@ -101,6 +100,7 @@ GR <- res_data(GR_clean)
 dist_hist <- function(data_frame) {
   ggplot(data = data_frame, aes(x = residuals)) +
     geom_histogram(binwidth = 0.5, fill = "steelblue", color = "black") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
     labs(
       title = "Distribution of Rating Residuals",
       x = "Residuals (My Rating - Average Rating)",

@@ -2,7 +2,7 @@
 % Please edit documentation in R/uniqueread.R
 \name{read_GR_data}
 \alias{read_GR_data}
-\title{Title: Read in and clean GoodReads data from CSV file}
+\title{Title: Read in GoodReads data from CSV file}
 \usage{
 read_GR_data(file_path)
 }
