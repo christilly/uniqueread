@@ -4,18 +4,33 @@ library("ggplot2")
 
 
 #' Title: Read in GoodReads data from CSV file
-#'
 #' Description: This function reads in data from user GoodReads CSV file
 #' into a data frame and removes unnecessary columns.
 #'
-#' @param file_path A character string representing the path to the CSV file.
+#' @param file_path A character string representing the file path. If `NULL`, sample data is used.
 #' @return A data frame containing the cleaned Goodreads data.
 #' @export
-read_GR_data <- function(file_path) {
-  if (!file.exists(file_path)) {
-    stop("Error: File not found. Please check the file path.")
+read_GR_data <- function(file_name = NULL) {
+  # If no file is provided, use the sample data from the package
+  if (is.null(file_name)) {
+    # Get the file path for the sample data from the package
+    file_name <- "sample_export.csv"
+    file_path <- system.file("extdata", file_name, package = "uniqueread")
+
+    if (file_path == "") {
+      stop("Error: Sample file not found. Please check the package installation.")
+    }
+    cat("Using sample data from: ", file_path, "\n")
+  } else {
+    # If a file path is provided by the user, use it
+    if (!file.exists(file_name)) {
+      stop("Error: File not found. Please check the file path.")
+    }
+    file_path <- file_name
+    cat("Using user-provided data from: ", file_path, "\n")
   }
   data <- read.csv(file_path, header = TRUE, stringsAsFactors = FALSE)
+
   #Remove unnecessary columns
   data <- data %>% select(-c(Author.l.f, Additional.Authors, Binding, ISBN, ISBN13, Year.Published,
                              Original.Publication.Year, Exclusive.Shelf, My.Review, Spoiler, Private.Notes,
@@ -23,11 +38,6 @@ read_GR_data <- function(file_path) {
   cat("Data successfully loaded from: ", file_path, "\n")
   return(data)
 }
-
-#Testing
-#GR_data <- read_GR_data("/Users/tillytran/Desktop/goodreads_library_export.csv")
-GR_data <- read_GR_data("/Users/tillytran/Desktop/sample_export.csv")
-#GR_data <- read_GR_data("/Users/tillytran/Desktop/sample_export.csv")
 
 
 #' Title: Remove ratings of 0 from GR_data
@@ -43,7 +53,6 @@ clean_GR_ratings <- function(data_frame) {
     dplyr::mutate(My.Rating = na_if(My.Rating, 0)) %>%
     dplyr::filter(!is.na(My.Rating))
 }
-GR_clean <- clean_GR_ratings(GR_data)
 
 
 #' Title: Calculate residuals of the user rating - average Goodreads rating
@@ -57,8 +66,6 @@ calculate_residuals <- function(data_frame) {
   data_frame %>%
     dplyr::mutate(residuals = My.Rating - Average.Rating)
 }
-GR_clean <- calculate_residuals(GR_clean)
-
 
 
 #' Title: Calculate average, standard deviation, highest, and lowest residuals
@@ -87,7 +94,6 @@ res_data <- function(data_frame) {
       "with a rating difference of", round(lr, 2), "stars\n")
 }
 
-GR <- res_data(GR_clean)
 
 #' Title: Distribution histogram
 #'
@@ -98,18 +104,13 @@ GR <- res_data(GR_clean)
 #' @return A distribution histogram.
 #' @export
 dist_hist <- function(data_frame) {
-  ggplot(data = data_frame, aes(x = residuals)) +
-    geom_histogram(binwidth = 0.5, fill = "steelblue", color = "black") +
-    geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
-    labs(
+  ggplot2::ggplot(data = data_frame, ggplot2::aes(x = residuals)) +
+    ggplot2::geom_histogram(binwidth = 0.5, fill = "steelblue", color = "black") +
+    ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
+    ggplot2::labs(
       title = "Distribution of Rating Residuals",
       x = "Residuals (My Rating - Average Rating)",
       y = "Frequency"
     ) +
-    theme_classic()
+    ggplot2::theme_classic()
 }
-
-dist_hist(GR_clean)
-
-
-

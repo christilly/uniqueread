@@ -2,17 +2,20 @@
 % Please edit documentation in R/uniqueread.R
 \name{read_GR_data}
 \alias{read_GR_data}
-\title{Title: Read in GoodReads data from CSV file}
+\title{Title: Read in GoodReads data from CSV file
+Description: This function reads in data from user GoodReads CSV file
+into a data frame and removes unnecessary columns.}
 \usage{
-read_GR_data(file_path)
+read_GR_data(file_name = NULL)
 }
 \arguments{
-\item{file_path}{A character string representing the path to the CSV file.}
+\item{file_path}{A character string representing the file path. If \code{NULL}, sample data is used.}
 }
 \value{
 A data frame containing the cleaned Goodreads data.
 }
 \description{
+Title: Read in GoodReads data from CSV file
 Description: This function reads in data from user GoodReads CSV file
 into a data frame and removes unnecessary columns.
 }

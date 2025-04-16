@@ -1,6 +1,12 @@
 ---
-title: "uniqueread"
-output: html_document
+title: "Using UniqueRead"
+author: "Christine Tran"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using UniqueRead}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 # Package purpose
@@ -14,11 +20,26 @@ library("ggplot2")
 ```
 
 ## Import Goodreads data
-The first step is to import the Goodreads data into the program. A user's Goodreads data can be exported from an individual's account in the form of a CSV file. Please access the following [link](https://help.goodreads.com/s/article/How-do-I-import-or-export-my-books-1553870934590) to find how to do so. Edit the read_GR_data function to include the path file to your Goodreads export data. A sample document has been included on my GitHub labelled sample_export.csv.
+The first step is to import the Goodreads data into the program. A user's Goodreads data can be exported from an individual's account in the form of a CSV file. Please access the following [link](https://help.goodreads.com/s/article/How-do-I-import-or-export-my-books-1553870934590) to find how to do so. Edit the last line in the code to include the path file to your Goodreads export data. EX: GR_data <- read_GR_data("path/to/your/file.csv"). If the argument is left blank, sample data from the package will be loaded. 
 ```{r}
-read_GR_data <- function(file_path) {
-  if (!file.exists(file_path)) {
-    stop("Error: File not found. Please check the file path.")
+read_GR_data <- function(file_name = NULL) {
+  # If no file is provided, use the sample data from the package
+  if (is.null(file_name)) {
+    # Get the file path for the sample data from the package
+    file_name <- "sample_export.csv"
+    file_path <- system.file("extdata", file_name, package = "uniqueread")
+
+    if (file_path == "") {
+      stop("Error: Sample file not found. Please check the package installation.")
+    }
+    cat("Using sample data from: ", file_path, "\n")
+  } else {
+    # If a file path is provided by the user, use it
+    if (!file.exists(file_name)) {
+      stop("Error: File not found. Please check the file path.")
+    }
+    file_path <- file_name
+    cat("Using user-provided data from: ", file_path, "\n")
   }
   data <- read.csv(file_path, header = TRUE, stringsAsFactors = FALSE)
   #Remove unnecessary columns
@@ -28,7 +49,7 @@ read_GR_data <- function(file_path) {
   cat("Data successfully loaded from: ", file_path, "\n")
   return(data)
 }
-GR_data <- read_GR_data("/Users/tillytran/Desktop/sample_export.csv")
+GR_data <- read_GR_data()
 ```
  
 ## Remove unrated books
