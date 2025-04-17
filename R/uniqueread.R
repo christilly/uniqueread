@@ -7,7 +7,7 @@ library("ggplot2")
 #' Description: This function reads in data from user GoodReads CSV file
 #' into a data frame and removes unnecessary columns.
 #'
-#' @param file_path A character string representing the file path. If `NULL`, sample data is used.
+#' @param file_name A character string representing the file path. If `NULL`, sample data is used.
 #' @return A data frame containing the cleaned Goodreads data.
 #' @export
 read_GR_data <- function(file_name = NULL) {
@@ -35,7 +35,6 @@ read_GR_data <- function(file_name = NULL) {
   data <- data %>% select(-c(Author.l.f, Additional.Authors, Binding, ISBN, ISBN13, Year.Published,
                              Original.Publication.Year, Exclusive.Shelf, My.Review, Spoiler, Private.Notes,
                              Owned.Copies, Bookshelves, Bookshelves.with.positions, Publisher))
-  cat("Data successfully loaded from: ", file_path, "\n")
   return(data)
 }
 

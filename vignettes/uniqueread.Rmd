@@ -1,8 +1,7 @@
 ---
 title: "Using UniqueRead"
 author: "Christine Tran"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: html_vignette
 vignette: >
   %\VignetteIndexEntry{Using UniqueRead}
   %\VignetteEngine{knitr::rmarkdown}
@@ -25,7 +24,7 @@ The first step is to import the Goodreads data into the program. A user's Goodre
 read_GR_data <- function(file_name = NULL) {
   # If no file is provided, use the sample data from the package
   if (is.null(file_name)) {
-    # Get the file path for the sample data from the package
+    # Get the file path for the sample data
     file_name <- "sample_export.csv"
     file_path <- system.file("extdata", file_name, package = "uniqueread")
 
@@ -42,11 +41,11 @@ read_GR_data <- function(file_name = NULL) {
     cat("Using user-provided data from: ", file_path, "\n")
   }
   data <- read.csv(file_path, header = TRUE, stringsAsFactors = FALSE)
+  
   #Remove unnecessary columns
   data <- data %>% select(-c(Author.l.f, Additional.Authors, Binding, ISBN, ISBN13, Year.Published,
                              Original.Publication.Year, Exclusive.Shelf, My.Review, Spoiler, Private.Notes,
                              Owned.Copies, Bookshelves, Bookshelves.with.positions, Publisher))
-  cat("Data successfully loaded from: ", file_path, "\n")
   return(data)
 }
 GR_data <- read_GR_data()

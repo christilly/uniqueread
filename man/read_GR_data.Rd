@@ -9,7 +9,7 @@ into a data frame and removes unnecessary columns.}
 read_GR_data(file_name = NULL)
 }
 \arguments{
-\item{file_path}{A character string representing the file path. If \code{NULL}, sample data is used.}
+\item{file_name}{A character string representing the file path. If \code{NULL}, sample data is used.}
 }
 \value{
 A data frame containing the cleaned Goodreads data.
