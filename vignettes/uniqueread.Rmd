@@ -1,5 +1,5 @@
 ---
-title: "Using UniqueRead"
+title: "Using uniqueread"
 author: "Christine Tran"
 output: html_vignette
 vignette: >
@@ -9,7 +9,8 @@ vignette: >
 ---
 
 # Package purpose
-The goal of the uniqueread package is to analyze user Goodreads data and show how the user rates the books they read, whether they tend to rate books above or below average, which books they differed from the average the most in a positive and negative way, and a visual display of the user's rating trends. 
+  The goal of the uniqueread package is to analyze user Goodreads data and show how the user rates the books they read, whether they tend to rate books above or below average, which books they differed from the average the most in a positive and negative way, and a visual display of the user's rating trends. 
+  To try this code yourself, please run each code block in order. Please download the "sample_export.csv" file from the package Github and take note of the file path on your computer. You can include the file path under the "Import Goodreads data" section by adding it to the last line of code. You can also include the file path to your own Goodreads data if you would like.  
 
 ## Required libraries
 Import the required packages. 
@@ -19,91 +20,85 @@ library("ggplot2")
 ```
 
 ## Import Goodreads data
-The first step is to import the Goodreads data into the program. A user's Goodreads data can be exported from an individual's account in the form of a CSV file. Please access the following [link](https://help.goodreads.com/s/article/How-do-I-import-or-export-my-books-1553870934590) to find how to do so. Edit the last line in the code to include the path file to your Goodreads export data. EX: GR_data <- read_GR_data("path/to/your/file.csv"). If the argument is left blank, sample data from the package will be loaded. 
+  The first step is to import the Goodreads data into the program. A user's Goodreads data can be exported from an individual's account in the form of a CSV file. Please access the following [link](https://help.goodreads.com/s/article/How-do-I-import-or-export-my-books-1553870934590) to find how to do so if you want to test your own data. Edit the last line in the code to include the file path to your Goodreads export data. EX: GR_data <- read_GR_data("/path/to/your/file.csv"). You can use the sample_export.csv file on the GitHub page for this package to test this code. 
 ```{r}
-read_GR_data <- function(file_name = NULL) {
-  # If no file is provided, use the sample data from the package
-  if (is.null(file_name)) {
-    # Get the file path for the sample data
-    file_name <- "sample_export.csv"
-    file_path <- system.file("extdata", file_name, package = "uniqueread")
-
-    if (file_path == "") {
-      stop("Error: Sample file not found. Please check the package installation.")
-    }
-    cat("Using sample data from: ", file_path, "\n")
-  } else {
-    # If a file path is provided by the user, use it
-    if (!file.exists(file_name)) {
-      stop("Error: File not found. Please check the file path.")
-    }
-    file_path <- file_name
-    cat("Using user-provided data from: ", file_path, "\n")
+read_GR_data <- function(file_name) {
+  #Check if file exists
+  if (!file.exists(file_name)) {
+    stop("Error: File not found. Please check the file path.")
   }
-  data <- read.csv(file_path, header = TRUE, stringsAsFactors = FALSE)
-  
+  cat("Using data from: ", file_name, "\n")
+
+  #Read the data
+  data <- read.csv(file_name, header = TRUE, stringsAsFactors = FALSE)
+
   #Remove unnecessary columns
-  data <- data %>% select(-c(Author.l.f, Additional.Authors, Binding, ISBN, ISBN13, Year.Published,
-                             Original.Publication.Year, Exclusive.Shelf, My.Review, Spoiler, Private.Notes,
-                             Owned.Copies, Bookshelves, Bookshelves.with.positions, Publisher))
+  remove_columns <- c("Author.l.f", "Additional.Authors", "Binding", "ISBN", "ISBN13", "Year.Published",
+                      "Original.Publication.Year", "Exclusive.Shelf", "My.Review", "Spoiler", "Private.Notes",
+                      "Owned.Copies", "Bookshelves", "Bookshelves.with.positions", "Publisher")
+  
+  data <- data %>% select(-any_of(remove_columns)) #Ensure that if columns do not exist in file that the code will still run
+  
   return(data)
 }
-GR_data <- read_GR_data()
+
+#Input file path into this function call
+GR_data <- read_GR_data("/Users/tillytran/Desktop/sample_export.csv")
 ```
  
 ## Remove unrated books
- Once the data has been uploaded, with irrelevant columns removed, the next step is to remove any books where the rating is 0 stars from the data frame. This is because the lowest rating a reader can give in Goodreads is 1 star, meaning the books with 0 stars are books that have not been rated yet and are therefore not useful in this analysis.
+  Once the data has been uploaded, with irrelevant columns removed, the next step is to remove any books where the rating is 0 stars from the data frame. This is because the lowest rating a reader can give in Goodreads is 1 star, meaning the books with 0 stars are books that have not been rated yet and are therefore not useful in this analysis.
 ```{r}
 clean_GR_ratings <- function(data_frame) {
   data_frame %>%
-    dplyr::mutate(My.Rating = na_if(My.Rating, 0)) %>%
-    dplyr::filter(!is.na(My.Rating))
+    dplyr::mutate(My.Rating = na_if(My.Rating, 0)) %>% #Change ratings of 0 to NA
+    dplyr::filter(!is.na(My.Rating)) #Remove ratings of NA
 }
 GR_clean <- clean_GR_ratings(GR_data)
 ```
  
 ## Create residual column in data frame
- After removing the unrated books, analysis can be done to compare the user ratings to the average Goodreads ratings of each book. Residuals are calculated by subtracting the average Goodreads rating from the user rating for each book. A new column for residual data is created in the data frame. 
+  After removing the unrated books, analysis can be done to compare the user ratings to the average Goodreads ratings of each book. Residuals are calculated by subtracting the average Goodreads rating from the user rating for each book. A new column for residual data is created in the data frame. 
 ```{r}
 calculate_residuals <- function(data_frame) {
   data_frame %>%
-    dplyr::mutate(residuals = My.Rating - Average.Rating)
+    dplyr::mutate(residuals = My.Rating - Average.Rating) #Create new data frame column with residuals (My Rating - Average Rating)
 }
 GR_clean <- calculate_residuals(GR_clean)
 ```
  
 ##  Find average, standard deviation, highest, and lowest residuals
- The residual data can be used to draw conclusions about user ratings vs average ratings. The average residual and standard deviation values can show how the user scored books compared to the average ratings and how widely spread their ratings are. The highest residual value informs which book the user rated highest compared to the average, and the lowest residual value informs which book the user rated lowest compared to the average. The associated titles for these books are found by accessing the data frame. 
+  The residual data can be used to draw conclusions about user ratings compared to the average ratings. The average residual and standard deviation values can show how the user scored books compared to the average ratings and how widely spread their ratings are. The highest residual value informs which book the user rated highest compared to the average, and the lowest residual value informs which book the user rated lowest compared to the average. The associated titles for these books are found by accessing the data frame. 
 ```{r}
 res_data <- function(data_frame) {
   avg_res <- mean(data_frame$residuals, na.rm = TRUE)
   sd_res <- sd(data_frame$residuals, na.rm = TRUE)
-  hr <- max(data_frame$residuals, na.rm = TRUE)
-  lr <- min(data_frame$residuals, na.rm = TRUE)
+  hr <- max(data_frame$residuals, na.rm = TRUE) #find highest residual
+  lr <- min(data_frame$residuals, na.rm = TRUE) #find lowest residual
 
-  hr_title <- data_frame$Title[which(data_frame$residuals == hr)][1]
-  lr_title <- data_frame$Title[which(data_frame$residuals == lr)][1]
+  hr_title <- data_frame$Title[which(data_frame$residuals == hr)][1] #find title of highest residual (return only 1 if tied)
+  lr_title <- data_frame$Title[which(data_frame$residuals == lr)][1] #find title of lowest residual (return only 1 if tied)
 
   cat("On average, your book ratings differed from average Goodreads users by",
       round(avg_res, 4), "points with a standard deviation of", round(sd_res, 4),  "\n")
   cat("The book you loved more than others:", hr_title,
-      "with a rating difference of", round(hr, 2), "stars\n")
+      "which you rated", round(hr, 2), "stars higher than average\n")
   cat("The book you hated more than others:", lr_title,
-      "with a rating difference of", round(lr, 2), "stars\n")
+      "which you rated", abs(round(lr, 2)), "stars lower than average\n")
 }
 
 GR <- res_data(GR_clean)
 ```
 
 ## Display distribution of residuals visually in a histogram
- Lastly, the residual data can be displayed visually using a distribution histogram. This can show whether a user tended to rate books above or below the average Goodreads rating. 
+  Lastly, the residual data can be displayed visually using a distribution histogram. This can show whether a user tended to rate books above or below the average Goodreads rating. Books the user tended to score higher than the average Goodreads rating are on the right of the 0, while books the user tended to score lower than the average Goodreads rating are on the left of the 0. 
 ```{r}
 dist_hist <- function(data_frame) {
   ggplot(data = data_frame, aes(x = residuals)) +
     geom_histogram(binwidth = 0.5, fill = "steelblue", color = "black") +
-    geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "black") +
     labs(
-      title = "Distribution of Rating Residuals",
+      title = "Distribution of Ratings",
       x = "Residuals (My Rating - Average Rating)",
       y = "Frequency"
     ) +

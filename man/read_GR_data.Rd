@@ -6,10 +6,10 @@
 Description: This function reads in data from user GoodReads CSV file
 into a data frame and removes unnecessary columns.}
 \usage{
-read_GR_data(file_name = NULL)
+read_GR_data(file_name)
 }
 \arguments{
-\item{file_name}{A character string representing the file path. If \code{NULL}, sample data is used.}
+\item{file_name}{A character string representing the file path to the Goodreads CSV file.}
 }
 \value{
 A data frame containing the cleaned Goodreads data.
