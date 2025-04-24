@@ -41,7 +41,7 @@ read_GR_data <- function(file_name) {
 #' @export
 clean_GR_ratings <- function(data_frame) {
   data_frame %>%
-    dplyr::mutate(My.Rating = na_if(My.Rating, 0)) %>% #Change ratings of 0 to NA
+    dplyr::mutate(My.Rating = dplyr::na_if(My.Rating, 0)) %>% #Change ratings of 0 to NA
     dplyr::filter(!is.na(My.Rating)) #Remove ratings of NA
 }
 
