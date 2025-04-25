@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/1301939/c5a32f4998574762b3ae7327f456b0cb
+bundleId: https://api.rpubs.com/api/v1/document/1301939/c5a32f4998574762b3ae7327f456b0cb
+url: http://rpubs.com/christilly/1301939
+version: 1

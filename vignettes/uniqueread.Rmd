@@ -51,7 +51,7 @@ GR_data <- read_GR_data("/Users/tillytran/Desktop/sample_export.csv")
 ```{r}
 clean_GR_ratings <- function(data_frame) {
   data_frame %>%
-    dplyr::mutate(My.Rating = na_if(My.Rating, 0)) %>% #Change ratings of 0 to NA
+    dplyr::mutate(My.Rating = dplyr::na_if(My.Rating, 0)) %>% #Change ratings of 0 to NA
     dplyr::filter(!is.na(My.Rating)) #Remove ratings of NA
 }
 GR_clean <- clean_GR_ratings(GR_data)
@@ -91,7 +91,7 @@ GR <- res_data(GR_clean)
 ```
 
 ## Display distribution of residuals visually in a histogram
-  Lastly, the residual data can be displayed visually using a distribution histogram. This can show whether a user tended to rate books above or below the average Goodreads rating. Books the user tended to score higher than the average Goodreads rating are on the right of the 0, while books the user tended to score lower than the average Goodreads rating are on the left of the 0. 
+  Lastly, the residual data can be displayed visually using a distribution histogram. This can show whether a user tended to rate books above or below the average Goodreads rating. The histogram shows how often a user rated a book higher or lower than average. Books the user tended to score higher than the average Goodreads rating are on the right of the 0, while books the user tended to score lower than the average Goodreads rating are on the left of the 0.   
 ```{r}
 dist_hist <- function(data_frame) {
   ggplot(data = data_frame, aes(x = residuals)) +
