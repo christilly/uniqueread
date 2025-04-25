@@ -5,6 +5,7 @@ The goal of the uniqueread package is to analyze Goodreads data and give insight
 
 ## Using the package
 To learn how to export your Goodreads data for use in this package, please read through this [link](https://help.goodreads.com/s/article/How-do-I-import-or-export-my-books-1553870934590). For a step by step rundown of the code and how to use it, please access this [link](https://rpubs.com/christilly/1301939). You need to input the file path of your data into the read_GR_data function. If you do not wish to use your own Goodreads data, you can download the example data from this package called sample_export.csv. 
+For more details behind how the package was created, please access my blog at this [link](https://christinetilly.blogspot.com/2025/04/r-package-uniqueread.html#more). 
 
 ### Important things to note
 While the ideas and work within this package are my own, please note that AI was used to assist in correcting errors in my code. 
